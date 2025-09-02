@@ -66,8 +66,11 @@ jobs:
         go test -race ./internal/app/domain  
         go test -race ./internal/app/transport/httpserver/httpserver_test
 
-    - name: Install golangci-lint
-      run: go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.57.2
+    - name: Run golangci-lint
+      uses: golangci/golangci-lint-action@v3
+      with:
+        version: latest
+        args: ./...
 
     - name: Run linter
       run: golangci-lint run ./...
