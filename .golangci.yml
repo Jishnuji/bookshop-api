@@ -1,0 +1,115 @@
+run:
+  timeout: 10m
+  issues-exit-code: 1
+  tests: true
+
+output:
+  formats:
+    - format: colored-line-number
+      path: stdout
+
+issues:
+  exclude-dirs-use-default: true
+  max-issues-per-linter: 0
+  max-same-issues: 0
+
+linters:
+  enable:
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - typecheck
+    - unused
+    - gofmt
+    - goimports
+    - misspell
+    - gocritic
+    - revive
+    - gocyclo
+    - dupl
+    - godot
+
+linters-settings:
+  errcheck:
+    check-type-assertions: true
+    check-blank: false
+    
+  govet:
+    enable:
+      - assign
+      - atomic
+      - bools
+      - buildtag
+      - cgocall
+      - composites
+      - copylocks
+      - deepequalerrors
+      - errorsas
+      - findcall
+      - framepointer
+      - httpresponse
+      - ifaceassert
+      - loopclosure
+      - lostcancel
+      - nilfunc
+      - printf
+      - shift
+      - sigchanyzer
+      - stdmethods
+      - stringintconv
+      - structtag
+      - tests
+      - unmarshal
+      - unreachable
+      - unsafeptr
+      - unusedresult
+    
+  gofmt:
+    simplify: true
+    
+  goimports:
+    local-prefixes: toptal
+    
+  misspell:
+    locale: US
+    
+  gocritic:
+    enabled-tags:
+      - diagnostic
+      - experimental
+      - opinionated
+      - performance
+      - style
+    disabled-checks:
+      - dupImport
+      - ifElseChain
+      - octalLiteral
+      - whyNoLint
+      - wrapperFunc
+      
+  revive:
+    confidence: 0.8
+    rules:
+      - name: exported
+        disabled: false
+      - name: package-comments
+        disabled: true
+        
+  gocyclo:
+    min-complexity: 15
+
+  exclude-rules:
+    - path: "_test\\.go"
+      linters:
+        - gocyclo
+        - errcheck
+        - dupl
+        - gosec
+        - gocritic
+        - revive
+    - path: "mock"
+      linters:
+        - revive
+        - stylecheck

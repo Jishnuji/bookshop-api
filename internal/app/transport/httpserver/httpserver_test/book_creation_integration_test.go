@@ -116,11 +116,13 @@ func TestCreateBook_InvalidYear_Integration(t *testing.T) {
 
 				// In DEBUG mode there should be error description
 				if tc.expectedErrorText != "" && errorResponse["error"] != nil {
-					errorText := errorResponse["error"].(string)
-					assert.Contains(t, errorText, tc.expectedErrorText,
-						"Error should contain information about field '%s'", tc.expectedErrorText)
-
-					t.Logf("✓ Validation caught error: %s", errorText)
+					if errorObj, ok := errorResponse["error"]; ok {
+						if errorText, ok := errorObj.(string); ok && tc.expectedErrorText != "" {
+							assert.Contains(t, errorText, tc.expectedErrorText,
+								"Error should contain information about field '%s'", tc.expectedErrorText)
+							t.Logf("✓ Validation caught error: %s", errorText)
+						}
+					}
 				}
 			}
 
