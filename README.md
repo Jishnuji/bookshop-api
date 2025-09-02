@@ -38,6 +38,7 @@ There are 3 permission levels:
 - :book: standard Go project layout (well, more or less :blush:)
 - :cd: docker compose + Makefile included
 - :card_file_box: PostgreSQL migrations included
+- :heavy_check_mark: Postman collection included
 - :lock: race conditions are handled by transactions and `SELECT ... FOR UPDATE` in the SQL queries
 
 ## API Endpoints
