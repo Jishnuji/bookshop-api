@@ -137,7 +137,7 @@ func run() error {
 			select {
 			case <-ticker.C:
 				log.Println("Cleaning expired carts")
-				err := cartRepo.CleanExpiredCarts(ctx, 5*time.Minute) //TODO: set 30 minutes
+				err := cartRepo.CleanExpiredCarts(ctx, 30*time.Minute)
 				if err != nil {
 					log.Printf("cartRepo.CleanExpiredCarts failed: %v", err)
 				}
