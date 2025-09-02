@@ -1,0 +1,10 @@
+# Mockery v3.5.4 configuration
+packages:
+  toptal/internal/app/services:
+    config:
+      dir: "{{.InterfaceDir}}/mocks"
+      filename: "{{.InterfaceName | snakecase}}_mock.go"
+      inpackage: false
+    interfaces:
+      UserRepository:
+      BookRepository:
