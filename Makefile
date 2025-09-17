@@ -17,17 +17,11 @@ run:
 	MIGRATIONS_PATH="file://./internal/app/migrations" \
 	./app
 
-#test:
-#	go test -race ./internal/app/services
-#	go test -race ./internal/app/domain
-#	go test -race ./internal/app/transport/httpserver/httpserver_test
-#	go test -race ./internal/app/transport/grpcserver/grpcserver_test
-
 test:
-#	go test ./internal/app/services
-#	go test ./internal/app/domain
-#	go test ./internal/app/transport/httpserver/httpserver_test
-	go test ./internal/app/transport/grpcserver/grpcserver_test
+	go test -race ./internal/app/services
+	go test -race ./internal/app/domain
+	go test -race ./internal/app/transport/httpserver/httpserver_test
+	go test -race ./internal/app/transport/grpcserver/grpcserver_test
 
 # Installation dev version golangci-lint to Go 1.25 support
 install-lint-dev:
