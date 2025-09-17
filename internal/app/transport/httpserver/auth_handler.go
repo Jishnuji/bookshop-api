@@ -3,6 +3,7 @@ package httpserver
 import (
 	"encoding/json"
 	"net/http"
+	auth "toptal/internal/app/common/auth"
 	"toptal/internal/app/common/server"
 	"toptal/internal/app/transport/models"
 )
@@ -20,7 +21,7 @@ func (s HttpServer) SignUp(w http.ResponseWriter, r *http.Request) {
 		server.RespondWithError(err, w, r)
 	}
 
-	user, err := toDomainUser(authRequest.Email, hashedPassword)
+	user, err := auth.ToDomainUser(authRequest.Email, hashedPassword)
 	if err != nil {
 		server.RespondWithError(err, w, r)
 		return

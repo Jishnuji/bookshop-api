@@ -52,7 +52,9 @@ The API provides the following functionality:
 - **🛒 Cart**: Shopping cart management (`/cart`, `/checkout`) (🔐 auth required)
 - **📖 Admin Books**: Book CRUD operations (`POST /book`, `PATCH /book/{book_id}`, `DELETE /book/{book_id}`) (👑 admin only)
 - **🗂️ Admin Categories**: Category CRUD operations (`POST /category`, `PATCH /category/{category_id}`, `DELETE /category/{category_id}`) (👑 admin only)
-
+- **⚡ gRPC Gateway**: All core API endpoints are also available via HTTP/JSON through gRPC Gateway, mapped from `.proto` definitions in `proto/v1/`:
+    - **Books Service (gRPC)**: `POST /v1/book`, `GET /v1/book/{id}`, `PATCH /v1/book/{id}`, `DELETE /v1/book/{id}`, `GET /v1/books`
+    - **Cart Service (gRPC)**: `PATCH /v1/cart` (update cart), `POST /v1/cart/checkout` (checkout current cart)
 ## Testing the API
 
 1. **Import Postman Collection**: Import `postman/Bookshop_API.postman_collection.json`

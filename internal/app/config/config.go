@@ -5,6 +5,7 @@ import (
 )
 
 type Config struct {
+	GRPCAddr       string `envconfig:"GRPC_ADDR" required:"true"`
 	HTTPAddr       string `envconfig:"HTTP_ADDR" required:"true"`
 	DSN            string `envconfig:"DSN"  required:"true"`
 	MigrationsPath string `envconfig:"MIGRATIONS_PATH" required:"true"`

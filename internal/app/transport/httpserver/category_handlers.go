@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"strconv"
+	auth "toptal/internal/app/common/auth"
 	"toptal/internal/app/common/server"
 	"toptal/internal/app/domain"
 	"toptal/internal/app/transport/models"
@@ -21,7 +22,7 @@ func (s HttpServer) GetCategories(w http.ResponseWriter, r *http.Request) {
 
 	response := make([]models.CategoryResponse, 0, len(categories))
 	for _, category := range categories {
-		response = append(response, toResponseCategory(category))
+		response = append(response, auth.ToResponseCategory(category))
 	}
 
 	server.RespondOK(response, w, r)
@@ -45,7 +46,7 @@ func (s HttpServer) GetCategory(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := toResponseCategory(category)
+	response := auth.ToResponseCategory(category)
 
 	server.RespondOK(response, w, r)
 }
@@ -72,7 +73,7 @@ func (s HttpServer) CreateCategory(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := toResponseCategory(insertedCategory)
+	response := auth.ToResponseCategory(insertedCategory)
 
 	server.RespondOK(response, w, r)
 }
@@ -116,7 +117,7 @@ func (s HttpServer) UpdateCategory(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := toResponseCategory(updatedCategory)
+	response := auth.ToResponseCategory(updatedCategory)
 
 	server.RespondOK(response, w, r)
 }

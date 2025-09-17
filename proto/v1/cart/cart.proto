@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+package v1;
+
+option go_package = "proto/v1/cart; cartv1";
+
+import "google/api/annotations.proto";
+
+message CartData {
+  repeated int64 book_ids = 1;
+}
+
+message UpdateCartRequest {
+  int64 user_id = 1;
+  CartData cart = 2;
+}
+
+message UpdateCartResponse {
+  int64 user_id = 1;
+  CartData cart = 2;
+}
+
+message CheckoutRequest {
+  int64 user_id = 1;
+}
+
+message CheckoutResponse {
+  bool success = 1;
+}
+
+service CartService {
+  rpc UpdateCart (UpdateCartRequest) returns (UpdateCartResponse) {
+    option (google.api.http) = {
+      post: "/v1/cart"
+      body: "*"
+    };
+  };
+  
+  rpc Checkout (CheckoutRequest) returns (CheckoutResponse) {
+    option (google.api.http) = {
+      post: "/v1/checkout"
+      body: "*"
+    };
+  };
+}

@@ -21,7 +21,7 @@ FROM alpine:latest
 
 # It's essential to regularly update the packages within the image to include security patches
 # Also install bash to run wait-for-it.sh
-RUN apk update && apk upgrade && apk add bash
+RUN apk update && apk upgrade && apk add --no-cache bash
 
 # Reduce image size
 RUN rm -rf /var/cache/apk/* && \

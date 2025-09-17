@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package v1;
+
+option go_package = "proto/v1/user;userv1";
+
+message User {
+  int64 id = 1;
+  string email = 2;
+  bool admin = 3;
+}
+
+message UserInternal {
+  int64 id = 1;
+  string email = 2;
+  string password = 3;
+  bool admin = 4;
+}
+
+message UserReference {
+  int64 user_id = 1;
+}

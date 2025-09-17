@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package google.api;
+
+import "google/protobuf/descriptor.proto";
+
+option go_package = "google.golang.org/genproto/googleapis/api/annotations;annotations";
+
+extend google.protobuf.FieldOptions {
+  // Describes field behavior.
+  repeated FieldBehavior field_behavior = 1052;
+}
+
+// Describes an aspect of field usage
+enum FieldBehavior {
+  // Default enum value. Do not use.
+  FIELD_BEHAVIOR_UNSPECIFIED = 0;
+
+  // Field is required
+  REQUIRED = 1;
+
+  // Field is optional
+  OPTIONAL = 2;
+
+  // Field is output only
+  OUTPUT_ONLY = 3;
+
+  // Field is input only
+  INPUT_ONLY = 4;
+
+  REPEATED = 5;
+}

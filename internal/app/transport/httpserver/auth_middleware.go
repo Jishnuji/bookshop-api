@@ -3,6 +3,7 @@ package httpserver
 import (
 	"context"
 	"net/http"
+	"strconv"
 	"strings"
 	"toptal/internal/app/common/server"
 )
@@ -49,6 +50,18 @@ func (s HttpServer) CheckAuthorizedUser(next http.Handler) http.Handler {
 			return
 		}
 		ctx := context.WithValue(r.Context(), ContextUserKey, user)
+
+		user, err = s.authService.GetUserFromToken(token)
+		if err != nil {
+			server.Unauthorised("invalid-token", err, w, r)
+			return
+		}
+		// Pass metadata through for the gRPC Gateway
+		r.Header.Set("user-id", strconv.Itoa(user.ID()))
+		r.Header.Set("user-email", user.Email())
+		r.Header.Set("user-admin", strconv.FormatBool(user.Admin()))
+
+		ctx = context.WithValue(r.Context(), ContextUserKey, user)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

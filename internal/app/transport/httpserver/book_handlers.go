@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"strconv"
+	auth "toptal/internal/app/common/auth"
 	"toptal/internal/app/common/server"
 	"toptal/internal/app/domain"
 	"toptal/internal/app/transport/models"
@@ -43,7 +44,7 @@ func (s HttpServer) GetBooks(w http.ResponseWriter, r *http.Request) {
 
 	response := make([]models.BookResponse, 0, len(books))
 	for _, book := range books {
-		response = append(response, toResponseBook(book))
+		response = append(response, auth.ToResponseBook(book))
 	}
 
 	server.RespondOK(response, w, r)
@@ -65,7 +66,7 @@ func (s HttpServer) GetBook(w http.ResponseWriter, r *http.Request) {
 		server.RespondWithError(err, w, r)
 		return
 	}
-	response := toResponseBook(book)
+	response := auth.ToResponseBook(book)
 
 	server.RespondOK(response, w, r)
 }
@@ -78,7 +79,7 @@ func (s HttpServer) CreateBook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	book, err := toDomainBook(bookRequest)
+	book, err := auth.ToDomainBook(bookRequest)
 	if err != nil {
 		server.RespondWithError(err, w, r)
 		return
@@ -90,7 +91,7 @@ func (s HttpServer) CreateBook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := toResponseBook(insertedBook)
+	response := auth.ToResponseBook(insertedBook)
 
 	server.RespondOK(response, w, r)
 }
@@ -139,7 +140,7 @@ func (s HttpServer) UpdateBook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := toResponseBook(updatedBook)
+	response := auth.ToResponseBook(updatedBook)
 
 	server.RespondOK(response, w, r)
 }

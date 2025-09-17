@@ -1,14 +1,20 @@
 package httpserver
 
+import "toptal/internal/app/transport/interfaces"
+
 type HttpServer struct {
-	userService     UserService
-	authService     AuthService
-	bookService     BookService
-	cartService     CartService
-	categoryService CategoryService
+	userService     interfaces.UserService
+	authService     interfaces.AuthService
+	bookService     interfaces.BookService
+	cartService     interfaces.CartService
+	categoryService interfaces.CategoryService
 }
 
-func NewHttpServer(userService UserService, authService AuthService, bookService BookService, cartService CartService, categoryService CategoryService) *HttpServer {
+func NewHttpServer(userService interfaces.UserService,
+	authService interfaces.AuthService,
+	bookService interfaces.BookService,
+	cartService interfaces.CartService,
+	categoryService interfaces.CategoryService) *HttpServer {
 	return &HttpServer{
 		userService:     userService,
 		authService:     authService,

@@ -3,13 +3,16 @@ version: '3.8'
 services:
   app:
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     build:
       context: .
       dockerfile: Dockerfile
     ports:
       - 8080:8080
+      - 8081:8081
     environment:
+      GRPC_ADDR: ":8081"
       HTTP_ADDR: ":8080"
       DEBUG_ERRORS: 1
       DSN: "postgres://postgres:postgres@postgres/bookshop?sslmode=disable"
@@ -20,10 +23,16 @@ services:
     restart: always
     image: postgres:latest
     ports:
-      - 5433:5432
+      - 5432:5432
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=bookshop
     volumes:
       - ./internal/pg/data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d bookshop" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s

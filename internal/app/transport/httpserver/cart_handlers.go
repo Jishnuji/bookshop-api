@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	auth "toptal/internal/app/common/auth"
 	"toptal/internal/app/common/server"
 	"toptal/internal/app/domain"
 	"toptal/internal/app/transport/models"
@@ -29,7 +30,7 @@ func (s HttpServer) UpdateCart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cart, err := toDomainCart(user.ID(), cartRequest)
+	cart, err := auth.ToDomainCart(user.ID(), cartRequest)
 	if err != nil {
 		if errors.Is(err, domain.ErrNegative) {
 			server.BadRequest("invalid-book-id", err, w, r)
@@ -53,7 +54,7 @@ func (s HttpServer) UpdateCart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := toResponseCart(updatedCart)
+	response := auth.ToResponseCart(updatedCart)
 
 	server.RespondOK(response, w, r)
 }

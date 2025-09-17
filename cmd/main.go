@@ -9,20 +9,29 @@ import (
 	"os"
 	"os/signal"
 	"strings"
+	"sync"
 	_ "sync"
 	"syscall"
 	"time"
 	"toptal/internal/app/config"
 	"toptal/internal/app/repository/pgrepo"
 	"toptal/internal/app/services"
+	"toptal/internal/app/transport/grpcserver"
 	"toptal/internal/app/transport/httpserver"
+	authv1 "toptal/proto/v1/auth"
+	bookv1 "toptal/proto/v1/book"
+	cartv1 "toptal/proto/v1/cart"
+	categoryv1 "toptal/proto/v1/category"
 
 	"toptal/internal/pkg/pg"
 
 	"database/sql"
 
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	_ "github.com/lib/pq"
 	"github.com/pressly/goose/v3"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
@@ -73,6 +82,9 @@ func run() error {
 
 	// create http server
 	httpServer := httpserver.NewHttpServer(userService, authService, bookService, cartService, categoryService)
+
+	// create grpc server
+	grpcServer := grpcserver.NewGrpcServer(userService, authService, bookService, cartService, categoryService)
 
 	// create router
 	router := chi.NewRouter()
@@ -126,6 +138,11 @@ func run() error {
 		r.Delete("/category/{category_id}", httpServer.DeleteCategory)
 	})
 
+	err = addGrpcEndpoints(router, cfg.GRPCAddr, httpServer)
+	if err != nil {
+		return fmt.Errorf("failed to add gRPC gateway routes: %w", err)
+	}
+
 	// Clean expired carts every minute
 	ctx, cleanupCancel := context.WithCancel(context.Background())
 	cleanupFinished := make(chan struct{})
@@ -165,24 +182,113 @@ func run() error {
 
 		shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer shutdownCancel()
+
 		if err := srv.Shutdown(shutdownCtx); err != nil {
 			log.Printf("HTTP Server Shutdown Error: %v", err)
 		}
+
+		grpcServer.Stop()
 	}()
 
-	log.Printf("Starting HTTP server on %s", cfg.HTTPAddr)
+	var wg sync.WaitGroup
 
 	// start HTTP server
-	if err := srv.ListenAndServe(); err != http.ErrServerClosed {
-		log.Fatalf("HTTP server ListenAndServe Error: %v", err)
-	}
+	wg.Go(func() {
+		log.Printf("Starting HTTP server on %s", cfg.HTTPAddr)
+		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
+			log.Fatalf("HTTP server ListenAndServe Error: %v", err)
+		}
+		log.Printf("HTTP server stopped")
+	})
+
+	// start GRPC server
+	wg.Go(func() {
+		log.Printf("Starting GRPC server on %s", cfg.GRPCAddr)
+		if err := grpcServer.Start(cfg.GRPCAddr); err != nil {
+			log.Fatalf("GRPC server ListenAndServe Error: %v", err)
+		}
+		log.Printf("gRPC server stopped")
+	})
 
 	//Wait for goroutines to finish
 	<-serverStopped
 	<-cleanupFinished
+	wg.Wait()
 
 	log.Printf("Have a nice day!")
 
+	return nil
+}
+
+func addGrpcEndpoints(router *chi.Mux, addr string, httpServer *httpserver.HttpServer) error {
+	ctx := context.Background()
+	// TODO: add interceptor for transport validation and for RPC calls
+	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
+
+	gwMux := runtime.NewServeMux(
+		runtime.WithIncomingHeaderMatcher(func(key string) (string, bool) {
+			switch strings.ToLower(key) {
+			case "authorization":
+				return key, true
+			case "user-id", "user-email", "user-admin":
+				return key, true
+			default:
+				return runtime.DefaultHeaderMatcher(key)
+			}
+		}))
+
+	err := authv1.RegisterAuthServiceHandlerFromEndpoint(ctx, gwMux, addr, opts)
+	if err != nil {
+		return fmt.Errorf("failed to register auth service handler: %w", err)
+	}
+
+	err = bookv1.RegisterBookServiceHandlerFromEndpoint(ctx, gwMux, addr, opts)
+	if err != nil {
+		return fmt.Errorf("failed to register book service handler: %w", err)
+	}
+
+	err = categoryv1.RegisterCategoryServiceHandlerFromEndpoint(ctx, gwMux, addr, opts)
+	if err != nil {
+		return fmt.Errorf("failed to register category service handler: %w", err)
+	}
+
+	err = categoryv1.RegisterCategoryServiceHandlerFromEndpoint(ctx, gwMux, addr, opts)
+	if err != nil {
+		return fmt.Errorf("failed to register category service handler: %w", err)
+	}
+
+	err = cartv1.RegisterCartServiceHandlerFromEndpoint(ctx, gwMux, addr, opts)
+	if err != nil {
+		return fmt.Errorf("failed to register cart service handler: %w", err)
+	}
+
+	gwRouter := chi.NewRouter()
+	gwRouter.Mount("/", gwMux)
+	router.Mount("/v1", gwRouter)
+
+	// Protected routes (auth needed)
+	router.Group(func(r chi.Router) {
+		r.Use(httpServer.CheckAuthorizedUser)
+
+		//Cart
+		r.Post("/v1/cart", gwMux.ServeHTTP)
+		r.Post("/v1/checkout", gwMux.ServeHTTP)
+	})
+
+	// Admin routes (admin auth needed)
+	router.Group(func(r chi.Router) {
+		r.Use(httpServer.CheckAdmin)
+
+		// Books
+		r.Post("/v1/book", gwMux.ServeHTTP)
+		r.Patch("/v1/book/{book_id}", gwMux.ServeHTTP)
+		r.Delete("/v1/book/{book_id}", gwMux.ServeHTTP)
+
+		// Categories
+		r.Post("/v1/category", gwMux.ServeHTTP)
+		r.Patch("/v1/category/{category_id}", gwMux.ServeHTTP)
+		r.Delete("/v1/category/{category_id}", gwMux.ServeHTTP)
+	})
 	return nil
 }
 

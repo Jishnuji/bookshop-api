@@ -1,0 +1,89 @@
+syntax = "proto3";
+
+package v1;
+
+option go_package = "proto/v1/category; categoryv1";
+
+import "google/api/annotations.proto";
+
+message CategoryData {
+  string name = 1;
+}
+
+message CreateCategoryRequest {
+  CategoryData category = 1;
+}
+
+message CreateCategoryResponse {
+  int64 id = 1;
+  CategoryData category = 2;
+}
+
+message GetCategoryRequest {
+  int64 id = 1;
+}
+
+message GetCategoryResponse {
+  int64 id = 1;
+  CategoryData category = 2;
+}
+
+message UpdateCategoryRequest {
+  int64 id = 1;
+  CategoryData category = 2;
+}
+
+message UpdateCategoryResponse {
+  int64 id = 1;
+  CategoryData category = 2;
+}
+
+message DeleteCategoryRequest {
+  int64 id = 1;
+}
+
+message DeleteCategoryResponse {
+  bool success = 1;
+}
+
+message ListCategoriesRequest {
+  // Empty request to fetch all categories
+}
+
+message ListCategoriesResponse {
+  repeated CreateCategoryResponse categories = 1;
+}
+
+service CategoryService {
+  rpc CreateCategory (CreateCategoryRequest) returns (CreateCategoryResponse) {
+    option (google.api.http) = {
+      post: "/v1/category"
+      body: "*"
+    };
+  };
+  
+  rpc GetCategory (GetCategoryRequest) returns (GetCategoryResponse) {
+    option (google.api.http) = {
+      get: "/v1/category/{id}"
+    };
+  };
+  
+  rpc UpdateCategory (UpdateCategoryRequest) returns (UpdateCategoryResponse) {
+    option (google.api.http) = {
+      patch: "/v1/category/{id}"
+      body: "*"
+    };
+  };
+  
+  rpc DeleteCategory (DeleteCategoryRequest) returns (DeleteCategoryResponse) {
+    option (google.api.http) = {
+      delete: "/v1/category/{id}"
+    };
+  };
+  
+  rpc ListCategories (ListCategoriesRequest) returns (ListCategoriesResponse) {
+    option (google.api.http) = {
+      get: "/v1/categories"
+    };
+  };
+}

@@ -6,6 +6,7 @@ import (
 	"toptal/internal/app/transport/models"
 )
 
+// Deprecated: use auth.ToResponseBook
 func toResponseBook(book domain.Book) models.BookResponse {
 	return models.BookResponse{
 		ID:         book.ID(),
@@ -18,6 +19,7 @@ func toResponseBook(book domain.Book) models.BookResponse {
 	}
 }
 
+// Deprecated: use auth.ToResponseCategory
 func toResponseCategory(category domain.Category) models.CategoryResponse {
 	return models.CategoryResponse{
 		ID:   category.ID(),
@@ -25,6 +27,7 @@ func toResponseCategory(category domain.Category) models.CategoryResponse {
 	}
 }
 
+// Deprecated: use auth.ToDomainBook
 func toDomainBook(bookRequest models.BookRequest) (domain.Book, error) {
 	return domain.NewBook(domain.NewBookData{
 		Title:      bookRequest.Title,
@@ -36,6 +39,7 @@ func toDomainBook(bookRequest models.BookRequest) (domain.Book, error) {
 	})
 }
 
+// Deprecated: use auth.ToDomainUser
 func toDomainUser(username, password string) (domain.User, error) {
 	return domain.NewUser(domain.NewUserData{
 		Email:    username,
@@ -43,6 +47,7 @@ func toDomainUser(username, password string) (domain.User, error) {
 	})
 }
 
+// Deprecated: use auth.ToDomainCart
 func toDomainCart(userID int, cartRequest models.CartRequest) (domain.Cart, error) {
 	return domain.NewCart(domain.NewCartData{
 		UserID:  userID,
@@ -50,12 +55,14 @@ func toDomainCart(userID int, cartRequest models.CartRequest) (domain.Cart, erro
 	})
 }
 
+// Deprecated: use auth.ToResponseCart
 func toResponseCart(cart domain.Cart) models.CartResponse {
 	return models.CartResponse{
 		BookIDs: cart.BookIDs(),
 	}
 }
 
+// Deprecated: use auth.GetUserFromContext
 func getUserFromContext(ctx context.Context) (domain.User, error) {
 	contextUser := ctx.Value(ContextUserKey)
 	if contextUser == nil {
